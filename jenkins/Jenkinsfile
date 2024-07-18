@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+    stages {
+        stage('CI') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
+                    sh '''
+                    docker build . -t engahmedabuzaid/node:V1
+                    echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+                    docker push engahmedabuzaid/dotnet:V1
+                    '''
+                }
+            }
+        }
+        stage('CD') {
+            steps {
+                sh '''
+                docker push engahmedabuzaid/dotnet:V1
+                '''
+            }
+        }
+    }
+}

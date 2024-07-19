@@ -1,61 +1,38 @@
 pipeline {
-    agent any // Changed from 'master' to 'any' for better compatibility
+    agent master
 
-    environment {
-        SONARQUBE_SCANNER_HOME = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-        SONARQUBE_URL = 'http://192.168.1.5:9000'
+    tools {
+        sonarQube 'SonarQube Scanner' // Name you gave in Global Tool Configuration
     }
 
     stages {
-        stage('Git Checkout') {
+        stage('Checkout SCM') {
             steps {
-                // Checkout code from your repository
-                git branch: 'main', url: 'https://github.com/AhmedMahmoudAbuzaidd/graduation-project.git'
-                echo 'Checked Repo Is Done!'
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build . -t engahmedabuzaid/dotnet:V1'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sq1') { // 'sq1' is the name of the SonarQube server configured in Jenkins
-                    sh """
-                    ${env.SONARQUBE_SCANNER_HOME}/bin/sonar-scanner \
-                    -Dsonar.projectKey=dotnet \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=${http://192.168.1.5} \
-                    -Dsonar.login=squ_052b09f129d741be8968659f6afd17d30b70aac3
-                    """
+                script {
+                    def scannerHome = tool 'SonarQube Scanner'
+                    withSonarQubeEnv('SonarQube Server') { // Name you gave in Configure System
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
                 }
-            }
-
-        stage('Build') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
-                    sh """
-                    docker build . -t engahmedabuzaid/dotnet:V1
-                    echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
-                    """
-                }
-            }
-        }
-
-        }
-
-        stage('Deliver on Docker Hub') {
-            steps {
-                sh """
-                docker push engahmedabuzaid/dotnet:V1
-                """
             }
         }
     }
 
     post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
+        always {
+            echo 'Pipeline finished!'
         }
     }
 }

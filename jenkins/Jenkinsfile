@@ -15,6 +15,19 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sq1') { // 'sq1' is the name of the SonarQube server configured in Jenkins
+                    sh """
+                    ${env.SONARQUBE_SCANNER_HOME}/bin/sonar-scanner \
+                    -Dsonar.projectKey=dotnet \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=${http://192.168.1.5} \
+                    -Dsonar.login=squ_052b09f129d741be8968659f6afd17d30b70aac3
+                    """
+                }
+            }
+
         stage('Build') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
@@ -26,18 +39,6 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('sq1') { // 'sq1' is the name of the SonarQube server configured in Jenkins
-                    sh """
-                    ${env.SONARQUBE_SCANNER_HOME}/bin/sonar-scanner \
-                    -Dsonar.projectKey=your-project-key \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=${SONARQUBE_URL} \
-                    -Dsonar.login=squ_052b09f129d741be8968659f6afd17d30b70aac3
-                    """
-                }
-            }
         }
 
         stage('Deliver on Docker Hub') {

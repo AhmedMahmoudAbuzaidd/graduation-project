@@ -1,23 +1,54 @@
 pipeline {
-    agent any
+    agent master
+
+    environment {
+        SONARQUBE_SCANNER_HOME = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+        SONARQUBE_URL = 'http://192.168.1.5:9000'
+    }
+
     stages {
-        stage('CI') {
+        stage('Git Checkout') {
+            steps {
+                // Checkout code from your repository
+                git branch: 'main', url: 'https://github.com/AhmedMahmoudAbuzaidd/graduation-project.git'
+		        echo ' Checked Repo Is Done !'
+            }
+        }
+
+        stage('Build') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
                     sh '''
                     docker build . -t engahmedabuzaid/dotnet:V1
                     echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
-                    
                     '''
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sq1') { // 'SonarQube' is the name of the SonarQube server configured in Jenkins
+                    sh "${env.SONARQUBE_SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=your-project-key -Dsonar.sources=. -Dsonar.host.url=${http://192.168.1.5} -Dsonar.login=squ_052b09f129d741be8968659f6afd17d30b70aac3"
+		    
                 }
             }
         }
-        stage('CD') {
+
+        stage('Deliver on Docker Hub') {
             steps {
                 sh '''
                 docker push engahmedabuzaid/dotnet:V1
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }

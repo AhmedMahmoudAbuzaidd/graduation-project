@@ -3,13 +3,11 @@ node {
     checkout scm
   }
   stage('SonarQube Analysis') {
-    def scannerHome = tool name: 'SonarScanner for MSBuild', type: 'hudson.plugins.sonar.MsBuildSQRunnerInstallation'
-    withSonarQubeEnv('sonarqube') {
-      sh """
-        dotnet ${scannerHome}/SonarScanner.MSBuild.dll begin /k:"scan-dotnet"
-        dotnet build
-        dotnet ${scannerHome}/SonarScanner.MSBuild.dll end
-      """
+    def scannerHome = tool 'SonarScanner for MSBuild'
+    withSonarQubeEnv() {
+      sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll begin /k:\"scan-dotnet\""
+      sh "dotnet build"
+      sh "dotnet ${scannerHome}/SonarScanner.MSBuild.dll end"
     }
   }
 }

@@ -9,7 +9,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             environment {
-                SONAR_SCANNER_HOME = tool name: 'SonarScanner for MSBuild', type: 'SonarScannerTool'
+                SONAR_SCANNER_HOME = tool name: 'SonarScanner-for-MSBuild', type: 'SonarScannerTool'
                 PATH = "${env.PATH}:${env.HOME}/.dotnet/tools"
             }
             steps {

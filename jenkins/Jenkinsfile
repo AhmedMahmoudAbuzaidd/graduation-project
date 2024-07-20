@@ -4,12 +4,12 @@ pipeline {
     stages {
         stage('SCM') {
             steps {
-                git branch: 'main', url:'https://github.com/AhmedMahmoudAbuzaidd/graduation-project.git'
+                git branch: 'main', url: 'https://github.com/AhmedMahmoudAbuzaidd/graduation-project.git'
             }
         }
         stage('SonarQube Analysis') {
             environment {
-                SONAR_SCANNER_HOME = tool name: 'SonarScanner-for-MSBuild', type: 'SonarScannerTool'
+                SONAR_SCANNER_HOME = tool name: 'SonarScannerForMSBuild', type: 'SonarScannerTool'
                 PATH = "${env.PATH}:${env.HOME}/.dotnet/tools"
             }
             steps {

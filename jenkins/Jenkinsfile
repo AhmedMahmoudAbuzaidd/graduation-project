@@ -2,10 +2,7 @@ pipeline {
     agent master
 
     tools {
-        sonarQube 'SonarQube Scanner'
-    }
-    environment {
-        scannerHome = tool 'SonarQube Scanner'
+        SonarQubeScanner 'SonarQube Scanner'
     }
 
     stages {
@@ -16,11 +13,14 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
+            environment {
+                scannerHome = tool 'SonarQube Scanner'
+            }
             steps {
                 withSonarQubeEnv('SonarQube Scanner') {
-                    sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectName=dotnet \
-                    -Dsonar.sources=. \
-                    -Dsonar.projectkey=dotnet '''
+                    sh "${scannerHome}/bin/sonar-scanner  -Dsonar.projectName=dotnet\
+                        -Dsonar.projectKey=dotnet \
+                        -Dsonar.sources=. "
                 }
             }
         }

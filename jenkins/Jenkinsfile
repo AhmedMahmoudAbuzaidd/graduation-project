@@ -12,6 +12,11 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/AhmedMahmoudAbuzaidd/graduation-project.git'
             }
         }
+        stage('Debug Environment') {
+            steps {
+                sh 'printenv'
+            }
+        }
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube') {

@@ -1,6 +1,11 @@
 pipeline {
     agent { label 'master' }
 
+    environment {
+        SONAR_SCANNER_HOME = tool name: 'sonar-ms-build', type: 'SonarScannerTool'
+        PATH = "${env.PATH}:${env.HOME}/.dotnet/tools"
+    }
+
     stages {
         stage('SCM') {
             steps {
@@ -8,10 +13,6 @@ pipeline {
             }
         }
         stage('SonarQube Analysis') {
-            environment {
-                SONAR_SCANNER_HOME = tool name: 'sonar-ms-build', type: 'SonarScannerTool'
-                PATH = "${env.PATH}:${env.HOME}/.dotnet/tools"
-            }
             steps {
                 withSonarQubeEnv('sonarqube') {
                     sh 'dotnet-sonarscanner begin /k:"scan-dotnet"'

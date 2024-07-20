@@ -1,17 +1,25 @@
-node {
-  stage('SCM') {
-    checkout scm
-  }
-  
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner for MSBuild'
-    withSonarQubeEnv('sonarqube') {
-      sh '''
-      export PATH=$PATH:/usr/bin/dotnet
-      dotnet ${scannerHome}/SonarScanner.MSBuild.dll begin /k:"scan-dotnet"
-      dotnet build
-      dotnet ${scannerHome}/SonarScanner.MSBuild.dll end
-      '''
+pipeline {
+    agent master
+
+    stages {
+        stage('SCM') {
+            steps {
+                git 'https://github.com/AhmedMahmoudAbuzaidd/graduation-project.git'
+            }
+        }
+        stage('SonarQube Analysis') {
+            environment {
+                SONAR_SCANNER_HOME = tool name: 'SonarScanner for MSBuild', type: 'SonarScannerTool'
+                PATH = "${env.PATH}:${env.HOME}/.dotnet/tools"
+            }
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh 'dotnet-sonarscanner begin /k:"scan-dotnet"'
+                    // Build your project here
+                    // sh 'dotnet build <your-project>'
+                    sh 'dotnet-sonarscanner end'
+                }
+            }
+        }
     }
-  }
 }

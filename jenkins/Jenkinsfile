@@ -2,13 +2,26 @@ pipeline {
     agent master
 
     tools {
-        sonarQube 'SonarQube Scanner' // Name you gave in Global Tool Configuration
+        sonarQube 'SonarQube Scanner'
+    }
+    environment {
+        scannerHome = tool 'SonarQube Scanner'
     }
 
     stages {
         stage('Checkout SCM') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/AhmedMahmoudAbuzaidd/graduation-project.git'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube Scanner') {
+                    sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectName=dotnet \
+                    -Dsonar.sources=. \
+                    -Dsonar.projectkey=dotnet '''
+                }
             }
         }
 
@@ -17,22 +30,14 @@ pipeline {
                 sh 'docker build . -t engahmedabuzaid/dotnet:V1'
             }
         }
-
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    def scannerHome = tool 'SonarQube Scanner'
-                    withSonarQubeEnv('SonarQube Server') { // Name you gave in Configure System
-                        sh "${scannerHome}/bin/sonar-scanner"
-                    }
-                }
-            }
-        }
     }
 
     post {
-        always {
-            echo 'Pipeline finished!'
+        success {
+            echo 'Pipeline success!'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }

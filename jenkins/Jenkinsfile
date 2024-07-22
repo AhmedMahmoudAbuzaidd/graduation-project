@@ -3,8 +3,9 @@ pipeline {
 
     tools {
         // Reference the SonarQube Scanner tool by the name given in Global Tool Configuration
-        // Note: Ensure that 'sonar' is the exact name configured in Jenkins Global Tool Configuration
-        sonarQubeScanner 'sonar'
+        // Ensure that 'sonar' is the exact name configured in Jenkins Global Tool Configuration
+        // Correct tool type
+        hudson.plugins.sonar.SonarRunnerInstallation 'sonar'
     }
 
     environment {

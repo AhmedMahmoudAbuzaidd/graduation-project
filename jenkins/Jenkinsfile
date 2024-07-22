@@ -3,12 +3,12 @@ pipeline {
 
     tools {
         // Reference the SonarQube Scanner tool by the name given in Global Tool Configuration
-        sonarScanner 'sonar'
+        sonarQubeScanner 'sonar'
     }
 
     environment {
         // Set SONARQUBE_SCANNER_HOME to the path of the SonarQube Scanner tool
-        SONARQUBE_SCANNER_HOME = tool 'sonar'
+        SONARQUBE_SCANNER_HOME = tool name: 'sonar', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
     }
 
     stages {
@@ -22,7 +22,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv('sonar') {
                     // Perform the SonarQube analysis using the Scanner
                     sh "dotnet-sonarscanner begin /k:'dotnet' /d:sonar.login='sonar'"
                     sh 'dotnet build'

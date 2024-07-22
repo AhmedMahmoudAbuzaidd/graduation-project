@@ -3,7 +3,8 @@ pipeline {
 
     tools {
         // Reference the SonarQube Scanner tool by the name given in Global Tool Configuration
-        sonar 'sonar'
+        // Note: Ensure that 'sonar' is the exact name configured in Jenkins Global Tool Configuration
+        sonarQubeScanner 'sonar'
     }
 
     environment {
@@ -22,7 +23,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonar') {
+                withSonarQubeEnv('SonarQube') {
                     // Perform the SonarQube analysis using the Scanner
                     sh "dotnet-sonarscanner begin /k:'dotnet' /d:sonar.login='sonar'"
                     sh 'dotnet build'
